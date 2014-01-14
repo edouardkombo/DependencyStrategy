@@ -91,7 +91,8 @@ class Roar extends HandleAbstraction
             return (object) $this->container = $this->_instantiate($driver, $namespace);
 
         } catch(\RuntimeException $ex) {
-            $ex->getMessage();   
+           echo $ex->getMessage();
+           exit();
         }
     }
     
