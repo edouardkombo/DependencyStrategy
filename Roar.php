@@ -64,7 +64,7 @@ class Roar extends HandleAbstraction
      * 
      * @return \TTI\DependencyStrategy\Roar
      */
-    protected function input($dependencies)
+    public function input($dependencies)
     {
         $this->input = $dependencies;
         
@@ -79,7 +79,7 @@ class Roar extends HandleAbstraction
      * @throws \RuntimeException
      * @return object
      */
-    public function get($driver)
+    public function get($driver = null)
     {
         try {
             $namespace = $this->input->driver[$driver]->namespace;
