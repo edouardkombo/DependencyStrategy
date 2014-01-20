@@ -118,7 +118,8 @@ class Roar extends HandleAbstraction
     }
     
     /**
-     * Only get single arguments in an array
+     * Get all Arguments specified
+     * If argument is a driver or an array, instantiate it in arg variaable
      * 
      * @param array $methodArgs All arguments of the methods with name
      * 
@@ -129,9 +130,31 @@ class Roar extends HandleAbstraction
         $args = array();
         
         foreach ($methodArgs as $argument) {
-            $args[] = (string) $argument;         
+            $args[] = $this->_argumentStrategy($argument);
         }
         
         return (array) $args;
+    }
+    
+    /**
+     * Strategy for getting arguments
+     * 
+     * @param string $argument Argument of _findArguments array
+     * 
+     * @return mixed
+     */
+    private function _argumentStrategy($argument)
+    {
+        if (substr($argument, 0, 1) == '%') {
+            $newArgument = str_replace('%', '', $argument);
+            $value = (object) $this->get($newArgument);
+        } elseif (substr($argument, 0, 6) == 'array|') {
+            $newArgument = str_replace('array|', '', $argument);
+            $value = (array) array($newArgument);                
+        } else {
+            $value = (string) $argument;         
+        }
+        
+        return $value;
     }
 }
