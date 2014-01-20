@@ -88,32 +88,41 @@ class Roar extends HandleAbstraction
             }
             
             $driver = $this->input->driver[$driver];
-            return (object) $this->container = $this->_instantiate($driver, $namespace);
+            return (object) $this->container = $this->_instantiate($driver);
 
         } catch(\RuntimeException $ex) {
-           echo $ex->getMessage();
-           exit();
+            echo $ex->getMessage();
         }
     }
     
     /**
      * Instantiate the object with or without arguments dependencies
      * 
-     * @param object $driver    Object containing
-     * @param string $namespace Namespace of the class
+     * @param object $driver Object containing
      * 
      * @return object
      */
-    private function _instantiate($driver, $namespace)
-    {
-        if (!isset($driver->method['__construct'])) {
-            $this->container = new $namespace();
+    private function _instantiate($driver)
+    {   
+        if (isset($driver->method)) {
+            foreach ($driver->method as $key => $method) {
+                $args = $this->_findArguments($driver->method[$key]);                
+                if ($key == '__construct') {
+                    $class = new \ReflectionClass($driver->namespace);                
+                    $this->container = $class->newInstanceArgs($args);
+                } else {
+                    $reflectionMethod = new \ReflectionMethod(
+                        $this->container, $key
+                    );
+                    $this->container->{$key} = $reflectionMethod->invokeArgs(
+                        $this->container, $args
+                    );                    
+                }
+            }            
         } else {
-            $args = $this->_findArguments($driver->method['__construct']);
-            $class = new \ReflectionClass($namespace);
-            $this->container = $class->newInstanceArgs($args);                
-        }
-        
+            $this->container = new $driver->namespace();
+        }      
+
         return (object) $this->container;
     }
     
